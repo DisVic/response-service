@@ -1,0 +1,7 @@
+CREATE SEQUENCE IF NOT EXISTS data_id_seq START 1;
+
+CREATE TABLE IF NOT EXISTS data (
+    id SERIAL PRIMARY KEY DEFAULT nextval('data_id_seq'),
+    description VARCHAR(255) NOT NULL,
+    textik VARCHAR(255) UNIQUE NOT NULL
+);
