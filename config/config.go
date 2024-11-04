@@ -11,8 +11,9 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	viper.AutomaticEnv()
-	viper.SetDefault("DATABASE_URL", "postgres://postgres:D1sappearedV1ctory@localhost:5432/ai_response?sslmode=disable")
-	viper.SetDefault("AI_SERVICE_URL", "http://aiservice/api")
+	viper.SetDefault("DATABASE_URL", "postgres://postgres:D1sappearedV1ctory@localhost:5432/ai-response?sslmode=disable")
+
+	viper.SetDefault("AI_SERVICE_URL", "http://localhost:8081/mock-ai-service")
 
 	return &Config{
 		DatabaseURL:  viper.GetString("DATABASE_URL"),

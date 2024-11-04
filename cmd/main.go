@@ -1,16 +1,17 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"log"
+
 	"github.com/DisVic/response-service/config"
 	"github.com/DisVic/response-service/internal/api"
 	"github.com/DisVic/response-service/internal/repository"
 	"github.com/DisVic/response-service/internal/service"
 
-	"context"
-	"log"
-
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v4/pgxpool"
+	_ "github.com/lib/pq" // импортируем pq для работы с PostgreSQL
 )
 
 func main() {
@@ -19,15 +20,21 @@ func main() {
 		log.Fatalf("Не удалось загрузить конфигурацию: %v", err)
 	}
 
-	dbPool, err := pgxpool.Connect(context.Background(), cfg.DatabaseURL)
+	// Подключение к базе данных с использованием pq
+	db, err := sql.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
 	}
-	defer dbPool.Close()
+	defer db.Close()
+
+	// Проверка соединения
+	if err := db.PingContext(context.Background()); err != nil {
+		log.Fatalf("Не удалось проверить соединение с базой данных: %v", err)
+	}
 
 	router := gin.Default()
 	aiService := service.NewAIService(cfg.AIServiceURL)
-	repo := repository.NewRepository(dbPool)
+	repo := repository.NewRepository(db)
 	api.SetupRoutes(router, aiService, repo) // Настройка маршрутов
 
 	if err := router.Run(":8080"); err != nil {
